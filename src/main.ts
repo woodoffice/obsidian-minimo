@@ -249,6 +249,7 @@ export default class ZenWriterPlugin extends Plugin {
     this.session = null;
     session.body.classList.remove('zen-writer-active');
     session.leafElement.classList.remove('zen-active-leaf');
+    session.leafElement.classList.remove('zen-show-title');
     session.view.dom.removeEventListener('keydown', session.keydown, true);
     try {
       if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });
@@ -269,6 +270,7 @@ export default class ZenWriterPlugin extends Plugin {
   private applyStyle(): void {
     const session = this.session;
     if (!session) return;
+    session.leafElement.classList.toggle('zen-show-title', this.settings.showTitle);
     const style = session.body.style;
     style.setProperty('--zen-font-family', fontStack(this.settings));
     style.setProperty('--zen-font-size', `${this.settings.fontSize}px`);
@@ -310,8 +312,9 @@ class ZenSettingTab extends PluginSettingTab {
       { name: 'Local font', desc: 'Installed fonts only. Falls back to system monospace.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
       { name: 'Font size', control: { type: 'slider', key: 'fontSize', min: 14, max: 36, step: 1, displayFormat: (value) => `${value}px` } },
       { name: 'Line height', control: { type: 'slider', key: 'lineHeight', min: 1.2, max: 2.2, step: 0.05 } },
-      { name: 'Text width', desc: 'Characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value}ch` } },
-      { name: 'Background', control: { type: 'dropdown', key: 'background', options: { dark: 'Dark charcoal', white: 'White', paper: 'Warm paper', custom: 'Custom' } } },
+      { name: 'Text width', desc: 'Maximum characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value}ch` } },
+      { name: 'Show note title', control: { type: 'toggle', key: 'showTitle' } },
+      { name: 'Background', control: { type: 'dropdown', key: 'background', options: { theme: 'Obsidian theme', dark: 'Dark charcoal', white: 'White', paper: 'Warm paper', custom: 'Custom' } } },
       color('customBackground', 'Custom background'),
       color('textColor', 'Text color', 'Leave blank for automatic contrast.', 'Auto'),
       color('caretColor', 'Caret color', 'Leave blank to match text.', 'Use text color'),

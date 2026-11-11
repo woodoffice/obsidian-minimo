@@ -1,5 +1,5 @@
 export type FontChoice = 'Geist Mono' | 'iA Writer Mono' | 'Berkeley Mono' | 'IBM Plex Mono' | 'local';
-export type BackgroundChoice = 'dark' | 'white' | 'paper' | 'custom';
+export type BackgroundChoice = 'theme' | 'dark' | 'white' | 'paper' | 'custom';
 export type FocusChoice = 'off' | 'sentence' | 'paragraph';
 
 export interface ZenSettings {
@@ -8,6 +8,7 @@ export interface ZenSettings {
   fontSize: number;
   lineHeight: number;
   lineWidth: number;
+  showTitle: boolean;
   background: BackgroundChoice;
   customBackground: string;
   textColor: string;
@@ -24,7 +25,8 @@ export const DEFAULT_SETTINGS: ZenSettings = {
   fontSize: 23,
   lineHeight: 1.65,
   lineWidth: 65,
-  background: 'dark',
+  showTitle: false,
+  background: 'theme',
   customBackground: '#202124',
   textColor: '',
   caretColor: '',
@@ -35,7 +37,7 @@ export const DEFAULT_SETTINGS: ZenSettings = {
 };
 
 const fonts: FontChoice[] = ['Geist Mono', 'iA Writer Mono', 'Berkeley Mono', 'IBM Plex Mono', 'local'];
-const backgrounds: BackgroundChoice[] = ['dark', 'white', 'paper', 'custom'];
+const backgrounds: BackgroundChoice[] = ['theme', 'dark', 'white', 'paper', 'custom'];
 const focuses: FocusChoice[] = ['off', 'sentence', 'paragraph'];
 
 export function isHexColor(value: string): boolean {
@@ -56,6 +58,7 @@ export function normalizeSettings(raw: unknown): ZenSettings {
     fontSize: numberIn(data.fontSize, 14, 36, DEFAULT_SETTINGS.fontSize),
     lineHeight: numberIn(data.lineHeight, 1.2, 2.2, DEFAULT_SETTINGS.lineHeight),
     lineWidth: numberIn(data.lineWidth, 40, 100, DEFAULT_SETTINGS.lineWidth),
+    showTitle: typeof data.showTitle === 'boolean' ? data.showTitle : DEFAULT_SETTINGS.showTitle,
     background: backgrounds.includes(data.background as BackgroundChoice) ? data.background as BackgroundChoice : DEFAULT_SETTINGS.background,
     customBackground: typeof data.customBackground === 'string' && isHexColor(data.customBackground) ? data.customBackground : DEFAULT_SETTINGS.customBackground,
     textColor: typeof data.textColor === 'string' && (data.textColor === '' || isHexColor(data.textColor)) ? data.textColor : DEFAULT_SETTINGS.textColor,
@@ -75,6 +78,7 @@ export function fontStack(settings: ZenSettings): string {
 
 export function backgroundColor(settings: ZenSettings): string {
   switch (settings.background) {
+    case 'theme': return 'var(--background-primary)';
     case 'white': return '#ffffff';
     case 'paper': return '#f5f1e8';
     case 'dark': return '#202124';
@@ -84,6 +88,7 @@ export function backgroundColor(settings: ZenSettings): string {
 
 export function resolvedTextColor(settings: ZenSettings): string {
   if (settings.textColor) return settings.textColor;
+  if (settings.background === 'theme') return 'var(--text-normal)';
   const background = backgroundColor(settings);
   const red = parseInt(background.slice(1, 3), 16);
   const green = parseInt(background.slice(3, 5), 16);

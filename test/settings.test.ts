@@ -10,6 +10,7 @@ void test('invalid persisted settings fall back or clamp to supported ranges', (
   assert.equal(result.textColor, DEFAULT_SETTINGS.textColor);
   assert.equal(result.caretColor, '#123456');
   assert.equal(result.focus, DEFAULT_SETTINGS.focus);
+  assert.equal(result.showTitle, false);
 });
 
 void test('local font value remains inside a quoted CSS family and has fallback', () => {
@@ -19,6 +20,9 @@ void test('local font value remains inside a quoted CSS family and has fallback'
 });
 
 void test('automatic text color contrasts with light and dark backgrounds', () => {
+  assert.equal(resolvedTextColor(normalizeSettings({ background: 'theme' })), 'var(--text-normal)');
+  assert.equal(normalizeSettings({ background: 'theme' }).background, 'theme');
+  assert.equal(normalizeSettings({ showTitle: true }).showTitle, true);
   assert.equal(resolvedTextColor(normalizeSettings({ background: 'dark' })), '#f5f1e8');
   assert.equal(resolvedTextColor(normalizeSettings({ background: 'white' })), '#202124');
   assert.equal(resolvedTextColor(normalizeSettings({ background: 'paper' })), '#202124');

@@ -9,11 +9,11 @@ Zen Writer gives the current Markdown note a quiet writing view. It keeps Obsidi
 3. In **Settings → Hotkeys**, assign your preferred shortcut to that command. No shortcut is assigned by default.
 4. Run the command again to exit. Escape also exits when the editor owns the key and no menu, dialog, suggestion, or IME composition is active.
 
-Zen covers the other panes and app chrome without closing or moving them. The active note keeps its cursor and selection. Exiting restores the normal workspace view and its earlier scroll position.
+Zen covers the other panes and app chrome without closing or moving them. It hides the note title by default and keeps Markdown headings at the text size, in bold. The active note keeps its cursor and selection. Scrolling stays available without a visible scrollbar. Exiting restores the normal workspace view and its earlier scroll position.
 
 ## Settings
 
-Choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or the name of a font installed locally. Fonts are not included. A missing font falls back to the system monospace stack. Set font size, line height, centered line width, background and text colors, and an optional caret color. Text color defaults to automatic contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
+Choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or the name of a font installed locally. Fonts are not included. A missing font falls back to the system monospace stack. Set font size, line height, centered line width, title visibility, background and text colors, and an optional caret color. The default background follows Obsidian's theme in light and dark mode; preset backgrounds use automatic text contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
 
 ## Build and local test
 
