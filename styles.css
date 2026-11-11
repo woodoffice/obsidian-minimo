@@ -38,6 +38,21 @@ body.minimo-active .minimo-active-leaf:not(.minimo-show-title) .inline-title {
   display: none !important;
 }
 
+body.minimo-active .minimo-active-leaf.minimo-show-title .inline-title {
+  font-family: var(--minimo-font-family) !important;
+  font-size: var(--minimo-font-size) !important;
+  line-height: var(--minimo-line-height) !important;
+  font-weight: 700 !important;
+}
+
+body.minimo-active .minimo-active-leaf.minimo-show-title .markdown-source-view .cm-sizer > .inline-title {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  padding-inline: 24px !important;
+}
+
 body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor {
   color: var(--minimo-text-color) !important;
   caret-color: var(--minimo-caret-color) !important;
@@ -83,10 +98,16 @@ body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-cont
 }
 
 body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-line {
+  width: 100% !important;
   max-width: none !important;
+  margin-inline: 0 !important;
   padding-inline: 0 !important;
   font-family: inherit !important;
   line-height: inherit !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view.mod-cm6.is-readable-line-width .cm-contentContainer.cm-contentContainer > .cm-content > .cm-line {
+  margin-inline: 0 !important;
 }
 
 body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .HyperMD-header,
