@@ -1,6 +1,6 @@
 export interface TextRange { from: number; to: number }
 
-const abbreviation = /(?:^|\s|[([])(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|vs|etc|e\.g|i\.e|U\.S|U\.K)\.$/i;
+const abbreviation = /(?:^|\s|[([*_~`])(?:Mr|Mrs|Ms|Dr|Prof|Sr|Jr|St|vs|etc|e\.g|i\.e|U\.S|U\.K)\.$/i;
 
 export function sentenceRanges(text: string): TextRange[] {
   const ranges: TextRange[] = [];

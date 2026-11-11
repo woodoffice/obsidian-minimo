@@ -1,5 +1,5 @@
 {
-  "name": "zen-writing-mode",
+  "name": "zen-writer",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -7,7 +7,7 @@
     "build": "tsc --noEmit && node esbuild.config.mjs production",
     "dev": "node esbuild.config.mjs",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src",
+    "lint": "eslint src test",
     "test": "node --experimental-strip-types --test test/*.test.ts"
   },
   "license": "MIT",

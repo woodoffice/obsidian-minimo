@@ -1,6 +1,6 @@
-# Zen Writing Mode
+# Zen Writer
 
-Zen Writing Mode is a temporary, quiet writing view for an open Markdown note in Obsidian Live Preview. It uses the current editor and file. Toggling it does not copy, convert, or rewrite note contents.
+Zen Writer gives the current Markdown note a quiet writing view. It keeps Obsidian's editor and file; toggling it does not change note content.
 
 ## Use
 
@@ -17,10 +17,10 @@ Choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or the name of 
 
 ## Build and local test
 
-This plugin targets Obsidian 1.15.1 or newer on desktop. Run `npm install`, `npm run build`, `npm run lint`, and `npm test`. For a local test, place `main.js`, `manifest.json`, and `styles.css` in `.obsidian/plugins/zen-writing-mode/` inside a **separate development vault**, then enable it under Community plugins. Do not test plugin development in a primary vault.
+This plugin targets Obsidian 1.15.0 or newer on desktop. Run `npm install`, `npm run build`, `npm run lint`, and `npm test`. For a local test, place `main.js`, `manifest.json`, and `styles.css` in `.obsidian/plugins/zen-writer/` inside a **separate development vault**, then enable it under Community plugins. Do not test plugin development in a primary vault.
 
 ## Privacy and support
 
 The plugin does not use the network, telemetry, or files outside the vault. It stores only its appearance settings through Obsidian's plugin data API. It does not change Markdown content itself. For support before a public repository exists, contact the author directly; the eventual public repository will carry the issue tracker.
 
-The plugin source is licensed under the MIT License. The provisional name and ID must be confirmed before a public release.
+The plugin source is licensed under the MIT License.

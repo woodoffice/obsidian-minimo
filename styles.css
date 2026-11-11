@@ -1,11 +1,11 @@
-body.zen-writing-mode .titlebar,
-body.zen-writing-mode .workspace-ribbon,
-body.zen-writing-mode .workspace-tab-header-container,
-body.zen-writing-mode .status-bar {
+body.zen-writer-active .titlebar,
+body.zen-writer-active .workspace-ribbon,
+body.zen-writer-active .workspace-tab-header-container,
+body.zen-writer-active .status-bar {
   visibility: hidden !important;
 }
 
-body.zen-writing-mode .zen-active-leaf {
+body.zen-writer-active .zen-active-leaf {
   position: fixed !important;
   inset: 0 !important;
   z-index: 1000 !important;
@@ -17,25 +17,25 @@ body.zen-writing-mode .zen-active-leaf {
   transition: none !important;
 }
 
-body.zen-writing-mode .zen-active-leaf .workspace-leaf-content,
-body.zen-writing-mode .zen-active-leaf .view-content,
-body.zen-writing-mode .zen-active-leaf .markdown-source-view,
-body.zen-writing-mode .zen-active-leaf .cm-editor {
+body.zen-writer-active .zen-active-leaf .workspace-leaf-content,
+body.zen-writer-active .zen-active-leaf .view-content,
+body.zen-writer-active .zen-active-leaf .markdown-source-view,
+body.zen-writer-active .zen-active-leaf .cm-editor {
   width: 100% !important;
   height: 100% !important;
   background: var(--zen-background) !important;
 }
 
-body.zen-writing-mode .zen-active-leaf .view-header,
-body.zen-writing-mode .zen-active-leaf .inline-title,
-body.zen-writing-mode .zen-active-leaf .metadata-container,
-body.zen-writing-mode .zen-active-leaf .cm-gutters,
-body.zen-writing-mode .zen-active-leaf .markdown-source-view .mod-header,
-body.zen-writing-mode .zen-active-leaf .markdown-source-view .embedded-backlinks {
+body.zen-writer-active .zen-active-leaf .view-header,
+body.zen-writer-active .zen-active-leaf .inline-title,
+body.zen-writer-active .zen-active-leaf .metadata-container,
+body.zen-writer-active .zen-active-leaf .cm-gutters,
+body.zen-writer-active .zen-active-leaf .markdown-source-view .mod-header,
+body.zen-writer-active .zen-active-leaf .markdown-source-view .embedded-backlinks {
   display: none !important;
 }
 
-body.zen-writing-mode .zen-editor {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor {
   color: var(--zen-text-color) !important;
   caret-color: var(--zen-caret-color) !important;
   font-family: var(--zen-font-family) !important;
@@ -44,8 +44,8 @@ body.zen-writing-mode .zen-editor {
   transition: none !important;
 }
 
-body.zen-writing-mode .zen-editor .cm-scroller,
-body.zen-writing-mode .zen-editor .cm-content {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .cm-scroller,
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .cm-content {
   font-family: var(--zen-font-family) !important;
   font-size: var(--zen-font-size) !important;
   line-height: var(--zen-line-height) !important;
@@ -53,11 +53,11 @@ body.zen-writing-mode .zen-editor .cm-content {
   background: var(--zen-background) !important;
 }
 
-body.zen-writing-mode .zen-editor .cm-scroller {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .cm-scroller {
   overflow: auto !important;
 }
 
-body.zen-writing-mode .zen-editor .cm-content {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .cm-content {
   box-sizing: border-box;
   width: min(100%, calc(var(--zen-line-width) + 48px));
   max-width: none;
@@ -67,16 +67,16 @@ body.zen-writing-mode .zen-editor .cm-content {
   caret-color: var(--zen-caret-color) !important;
 }
 
-body.zen-writing-mode .zen-editor .cm-line {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .cm-line {
   padding-inline: 0 !important;
   font-family: inherit !important;
   line-height: inherit !important;
 }
 
-body.zen-writing-mode .zen-editor .cm-cursor {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .cm-cursor {
   border-left-color: var(--zen-caret-color) !important;
 }
 
-body.zen-writing-mode .zen-editor .zen-dimmed {
+body.zen-writer-active .zen-active-leaf .markdown-source-view .cm-editor .zen-dimmed {
   opacity: var(--zen-dim-opacity);
 }

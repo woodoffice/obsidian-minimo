@@ -7,5 +7,9 @@ export default tseslint.config(
   js.configs.recommended,
   ...tseslint.configs.recommended,
   ...obsidianmd.configs.recommended,
-  { files: ['src/**/*.ts'], languageOptions: { parserOptions: { projectService: true } } },
+  {
+    files: ['src/**/*.ts', 'test/**/*.ts'],
+    languageOptions: { parserOptions: { projectService: true } },
+    rules: { 'obsidianmd/ui/sentence-case': ['warn', { brands: ['Zen', 'Markdown', 'Live Preview'] }] },
+  },
 );

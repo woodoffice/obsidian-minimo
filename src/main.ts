@@ -71,7 +71,7 @@ class ZenEditorView {
   };
   private readonly resize: ResizeObserver;
 
-  constructor(private readonly view: EditorView, private readonly owner: ZenWritingMode) {
+  constructor(private readonly view: EditorView, private readonly owner: ZenWriterPlugin) {
     view.scrollDOM.addEventListener('wheel', this.onWheel, { passive: true });
     view.scrollDOM.addEventListener('pointerdown', this.onPointerDown);
     this.resize = new ResizeObserver(() => this.layout());
@@ -90,7 +90,6 @@ class ZenEditorView {
 
   refresh(): void {
     const active = this.owner.isActiveEditor(this.view);
-    this.view.dom.classList.toggle('zen-editor', active);
     this.decorations = active ? focusDecorations(this.view, this.owner.settings) : Decoration.none;
     this.manualScroll = false;
     this.layout();
@@ -98,13 +97,13 @@ class ZenEditorView {
 
   private layout(): void {
     if (!this.owner.isActiveEditor(this.view) || !this.owner.settings.typewriter) {
-      this.view.dom.style.removeProperty('--zen-edge-space');
+      this.view.dom.ownerDocument.body.style.removeProperty('--zen-edge-space');
       return;
     }
     this.view.requestMeasure({
       read: () => Math.max(0, this.view.scrollDOM.clientHeight * this.owner.settings.verticalPosition / 100 - this.view.defaultLineHeight / 2),
       write: (space) => {
-        this.view.dom.style.setProperty('--zen-edge-space', `${space}px`);
+        this.view.dom.ownerDocument.body.style.setProperty('--zen-edge-space', `${space}px`);
         if (!this.manualScroll) this.centerCaret();
       },
     });
@@ -129,13 +128,22 @@ class ZenEditorView {
     this.resize.disconnect();
     this.view.scrollDOM.removeEventListener('wheel', this.onWheel);
     this.view.scrollDOM.removeEventListener('pointerdown', this.onPointerDown);
-    this.view.dom.classList.remove('zen-editor');
-    this.view.dom.style.removeProperty('--zen-edge-space');
+    this.view.dom.ownerDocument.body.style.removeProperty('--zen-edge-space');
   }
+}
+
+function createEditorExtension(owner: ZenWriterPlugin) {
+  return ViewPlugin.fromClass(
+    class extends ZenEditorView {
+      constructor(view: EditorView) { super(view, owner); }
+    },
+    { decorations: (plugin) => plugin.decorations },
+  );
 }
 
 interface ZenSession {
   leaf: WorkspaceLeaf;
+  filePath: string;
   leafElement: HTMLElement;
   view: EditorView;
   compartment: Compartment;
@@ -146,20 +154,13 @@ interface ZenSession {
   keydown: (event: KeyboardEvent) => void;
 }
 
-export default class ZenWritingMode extends Plugin {
+export default class ZenWriterPlugin extends Plugin {
   settings: ZenSettings = DEFAULT_SETTINGS;
   private session: ZenSession | null = null;
   private readonly compartments = new WeakMap<EditorView, Compartment>();
-  private readonly editorExtension = ViewPlugin.fromClass(
-    class extends ZenEditorView {
-      constructor(view: EditorView) { super(view, ZenWritingMode.current!); }
-    },
-    { decorations: (plugin) => plugin.decorations },
-  );
-  private static current: ZenWritingMode | null = null;
+  private readonly editorExtension = createEditorExtension(this);
 
   async onload(): Promise<void> {
-    ZenWritingMode.current = this;
     this.settings = normalizeSettings(await this.loadData());
     this.addCommand({ id: 'toggle', name: 'Toggle Zen mode', callback: () => this.toggle() });
     this.addSettingTab(new ZenSettingTab(this.app, this));
@@ -169,11 +170,13 @@ export default class ZenWritingMode extends Plugin {
     this.registerEvent(this.app.workspace.on('layout-change', () => {
       if (this.session && (!this.session.view.dom.isConnected || !(this.session.leaf.view instanceof MarkdownView) || this.session.leaf.view.getMode() !== 'source')) this.exit(false);
     }));
+    this.registerEvent(this.app.workspace.on('file-open', (file) => {
+      if (this.session && file?.path !== this.session.filePath) this.exit(false);
+    }));
   }
 
   onunload(): void {
     this.exit(false);
-    ZenWritingMode.current = null;
   }
 
   isActiveEditor(view: EditorView): boolean { return this.session?.view === view; }
@@ -182,7 +185,7 @@ export default class ZenWritingMode extends Plugin {
     if (this.session) { this.exit(true); return; }
     const markdown = this.app.workspace.getActiveViewOfType(MarkdownView);
     if (!markdown || markdown.getMode() !== 'source' || !markdown.containerEl.querySelector('.markdown-source-view.is-live-preview')) {
-      new Notice('Open a Markdown note in live preview first.');
+      new Notice('Open a Markdown note in Live Preview first.');
       return;
     }
     const view = codeMirrorView(markdown);
@@ -192,18 +195,18 @@ export default class ZenWritingMode extends Plugin {
     }
     const body = view.dom.ownerDocument.body;
     const leaf = markdown.leaf;
+    const filePath = markdown.file?.path;
+    if (!filePath) return;
     const leafElement = markdown.containerEl.closest<HTMLElement>('.workspace-leaf');
     if (!leafElement) {
       new Notice('Could not find the current pane.');
       return;
     }
     const hadFocus = view.hasFocus;
-    let compartment = this.compartments.get(view);
-    const firstUse = !compartment;
-    if (!compartment) {
-      compartment = new Compartment();
-      this.compartments.set(view, compartment);
-    }
+    const cached = this.compartments.get(view);
+    const compartment = cached && cached.get(view.state) !== undefined ? cached : new Compartment();
+    const firstUse = compartment !== cached;
+    if (firstUse) this.compartments.set(view, compartment);
     const keydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape' && this.safeToExit(event, view)) {
         event.preventDefault();
@@ -211,22 +214,24 @@ export default class ZenWritingMode extends Plugin {
         this.exit(true);
       }
     };
-    this.session = { leaf, leafElement, view, compartment, editorAttached: false, body, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
+    const session: ZenSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
+    this.session = session;
     try {
       view.dispatch({ effects: firstUse
         ? StateEffect.appendConfig.of(compartment.of(this.editorExtension))
         : compartment.reconfigure(this.editorExtension) });
-      this.session.editorAttached = true;
+      session.editorAttached = true;
+      if (!view.plugin(this.editorExtension)) throw new Error('Editor extension unavailable');
       leafElement.classList.add('zen-active-leaf');
-      body.classList.add('zen-writing-mode');
+      body.classList.add('zen-writer-active');
       this.applyStyle();
-      this.refreshEditor();
+      view.plugin(this.editorExtension)?.refresh();
       view.dom.addEventListener('keydown', keydown, true);
       if (hadFocus) view.focus();
-    } catch (error) {
-      if (!this.session?.editorAttached) this.compartments.delete(view);
+    } catch {
+      if (!session.editorAttached) this.compartments.delete(view);
       this.exit(false);
-      throw error;
+      new Notice('Could not start writing mode in this editor.');
     }
   }
 
@@ -242,23 +247,22 @@ export default class ZenWritingMode extends Plugin {
     const session = this.session;
     if (!session) return;
     this.session = null;
-    session.body.classList.remove('zen-writing-mode');
+    session.body.classList.remove('zen-writer-active');
     session.leafElement.classList.remove('zen-active-leaf');
     session.view.dom.removeEventListener('keydown', session.keydown, true);
-    if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });
-    session.view.dom.classList.remove('zen-editor');
-    session.view.dom.style.removeProperty('--zen-edge-space');
-    this.clearStyle(session.body);
-    if (session.view.dom.isConnected) session.view.scrollDOM.scrollTop = session.scrollTop;
-    if (restoreFocus && session.hadFocus && session.view.dom.isConnected) {
-      session.view.focus();
+    try {
+      if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });
+    } finally {
+      this.clearStyle(session.body);
+      if (session.view.dom.isConnected) session.view.scrollDOM.scrollTop = session.scrollTop;
+      if (restoreFocus && session.hadFocus && session.view.dom.isConnected) session.view.focus();
     }
   }
 
   private refreshEditor(view = this.session?.view): void {
     if (view && view.dom.isConnected) {
-      view.plugin(this.editorExtension)?.refresh();
-      view.dispatch({});
+      const session = this.session;
+      if (session) view.dispatch({ effects: session.compartment.reconfigure(this.editorExtension) });
     }
   }
 
@@ -277,7 +281,7 @@ export default class ZenWritingMode extends Plugin {
   }
 
   private clearStyle(body: HTMLElement): void {
-    for (const name of ['font-family', 'font-size', 'line-height', 'line-width', 'background', 'text-color', 'caret-color', 'dim-opacity']) {
+    for (const name of ['font-family', 'font-size', 'line-height', 'line-width', 'background', 'text-color', 'caret-color', 'dim-opacity', 'edge-space']) {
       body.style.removeProperty(`--zen-${name}`);
     }
   }
@@ -291,29 +295,29 @@ export default class ZenWritingMode extends Plugin {
 }
 
 class ZenSettingTab extends PluginSettingTab {
-  constructor(app: App, private readonly plugin: ZenWritingMode) { super(app, plugin); }
+  constructor(app: App, private readonly plugin: ZenWriterPlugin) { super(app, plugin); }
 
   getSettingDefinitions(): SettingDefinitionItem[] {
     const color = (key: 'customBackground' | 'textColor' | 'caretColor', name: string, optional = false): SettingDefinitionItem => ({
       name,
-      desc: optional ? 'Optional six-digit hex color; leave empty to use the text color.' : 'Six-digit hex color.',
+      desc: optional ? 'Leave blank to match text.' : undefined,
       control: { type: 'text', key, placeholder: optional ? 'Use text color' : '#000000', validate: (value) => optional && value === '' || isHexColor(value) ? undefined : 'Enter a six-digit hex color.' },
       visible: key === 'customBackground' ? () => this.plugin.settings.background === 'custom' : true,
     });
     return [
       { name: 'Font', control: { type: 'dropdown', key: 'font', options: { 'Geist Mono': 'Geist Mono', 'iA Writer Mono': 'iA Writer Mono', 'Berkeley Mono': 'Berkeley Mono', 'IBM Plex Mono': 'IBM Plex Mono', local: 'Local installed font' } } },
-      { name: 'Local font name', desc: 'Uses a font installed on this computer; falls back to system monospace.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
+      { name: 'Local font', desc: 'Installed fonts only. Falls back to system monospace.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
       { name: 'Font size', control: { type: 'slider', key: 'fontSize', min: 14, max: 36, step: 1, displayFormat: (value) => `${value}px` } },
       { name: 'Line height', control: { type: 'slider', key: 'lineHeight', min: 1.2, max: 2.2, step: 0.05 } },
-      { name: 'Line width', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value}ch` } },
+      { name: 'Text width', desc: 'Characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value}ch` } },
       { name: 'Background', control: { type: 'dropdown', key: 'background', options: { dark: 'Dark charcoal', white: 'White', paper: 'Warm paper', custom: 'Custom' } } },
       color('customBackground', 'Custom background'),
       color('textColor', 'Text color'),
       color('caretColor', 'Caret color', true),
-      { name: 'Typewriter scrolling', desc: 'Keep the active line at the chosen vertical position. Manual scrolling is free until you type again.', control: { type: 'toggle', key: 'typewriter' } },
-      { name: 'Vertical position', control: { type: 'slider', key: 'verticalPosition', min: 25, max: 75, step: 1, displayFormat: (value) => `${value}%` }, visible: () => this.plugin.settings.typewriter },
-      { name: 'Focus', control: { type: 'dropdown', key: 'focus', options: { off: 'Off', sentence: 'Sentence', paragraph: 'Paragraph' } } },
-      { name: 'Dim opacity', control: { type: 'slider', key: 'dimOpacity', min: 10, max: 90, step: 1, displayFormat: (value) => `${value}%` }, visible: () => this.plugin.settings.focus !== 'off' },
+      { name: 'Typewriter scrolling', desc: 'Center the line while typing.', control: { type: 'toggle', key: 'typewriter' } },
+      { name: 'Line position', control: { type: 'slider', key: 'verticalPosition', min: 25, max: 75, step: 1, displayFormat: (value) => `${value}%` }, visible: () => this.plugin.settings.typewriter },
+      { name: 'Focus', desc: 'Dim surrounding text.', control: { type: 'dropdown', key: 'focus', options: { off: 'Off', sentence: 'Sentence', paragraph: 'Paragraph' } } },
+      { name: 'Dimmed text opacity', control: { type: 'slider', key: 'dimOpacity', min: 10, max: 90, step: 1, displayFormat: (value) => `${value}%` }, visible: () => this.plugin.settings.focus !== 'off' },
     ];
   }
 
