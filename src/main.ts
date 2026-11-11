@@ -312,7 +312,7 @@ class ZenSettingTab extends PluginSettingTab {
       { name: 'Local font', desc: 'Installed fonts only. Falls back to system monospace.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
       { name: 'Font size', control: { type: 'slider', key: 'fontSize', min: 14, max: 36, step: 1, displayFormat: (value) => `${value}px` } },
       { name: 'Line height', control: { type: 'slider', key: 'lineHeight', min: 1.2, max: 2.2, step: 0.05 } },
-      { name: 'Text width', desc: 'Maximum characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value}ch` } },
+      { name: 'Line width', desc: 'Approximate characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value} chars` } },
       { name: 'Show note title', control: { type: 'toggle', key: 'showTitle' } },
       { name: 'Background', control: { type: 'dropdown', key: 'background', options: { theme: 'Obsidian theme', dark: 'Dark charcoal', white: 'White', paper: 'Warm paper', custom: 'Custom' } } },
       color('customBackground', 'Custom background'),
