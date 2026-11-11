@@ -1,4 +1,4 @@
-export type FontChoice = 'Geist Mono' | 'iA Writer Mono' | 'Berkeley Mono' | 'IBM Plex Mono' | 'local';
+export type FontChoice = 'system' | 'Geist Mono' | 'iA Writer Mono' | 'Berkeley Mono' | 'IBM Plex Mono' | 'local';
 export type BackgroundChoice = 'theme' | 'dark' | 'white' | 'paper' | 'custom';
 export type FocusChoice = 'off' | 'sentence' | 'paragraph';
 
@@ -20,7 +20,7 @@ export interface MinimoSettings {
 }
 
 export const DEFAULT_SETTINGS: MinimoSettings = {
-  font: 'Geist Mono',
+  font: 'system',
   localFont: '',
   fontSize: 23,
   lineHeight: 1.65,
@@ -36,7 +36,7 @@ export const DEFAULT_SETTINGS: MinimoSettings = {
   dimOpacity: 30,
 };
 
-const fonts: FontChoice[] = ['Geist Mono', 'iA Writer Mono', 'Berkeley Mono', 'IBM Plex Mono', 'local'];
+const fonts: FontChoice[] = ['system', 'Geist Mono', 'iA Writer Mono', 'Berkeley Mono', 'IBM Plex Mono', 'local'];
 const backgrounds: BackgroundChoice[] = ['theme', 'dark', 'white', 'paper', 'custom'];
 const focuses: FocusChoice[] = ['off', 'sentence', 'paragraph'];
 
@@ -71,6 +71,7 @@ export function normalizeSettings(raw: unknown): MinimoSettings {
 }
 
 export function fontStack(settings: MinimoSettings): string {
+  if (settings.font === 'system') return 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
   const family = settings.font === 'local' ? settings.localFont : settings.font;
   const safe = family.replace(/["\\]/g, '').trim();
   return safe ? `"${safe}", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace` : 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';

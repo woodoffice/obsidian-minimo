@@ -15,7 +15,7 @@ Minimo covers the other panes and app chrome without closing or moving them. It 
 
 ## Settings
 
-Choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or the name of a font installed locally. Fonts are not included. A missing font falls back to the system monospace stack. Set font size, line height, centered line width, title visibility, background and text colors, and an optional caret color. The default background follows Obsidian's theme in light and dark mode; preset backgrounds use automatic text contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
+The default is the system monospace font. You can choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or another font installed locally. Fonts are not included; a missing font falls back to system mono. Set font size, line height, centered line width, title visibility, background and text colors, and an optional caret color. The default background follows Obsidian's theme in light and dark mode; preset backgrounds use automatic text contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
 
 ## Build and local test
 
