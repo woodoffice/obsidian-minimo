@@ -26,7 +26,7 @@ export const DEFAULT_SETTINGS: ZenSettings = {
   lineWidth: 65,
   background: 'dark',
   customBackground: '#202124',
-  textColor: '#f5f1e8',
+  textColor: '',
   caretColor: '',
   typewriter: true,
   verticalPosition: 50,
@@ -58,7 +58,7 @@ export function normalizeSettings(raw: unknown): ZenSettings {
     lineWidth: numberIn(data.lineWidth, 40, 100, DEFAULT_SETTINGS.lineWidth),
     background: backgrounds.includes(data.background as BackgroundChoice) ? data.background as BackgroundChoice : DEFAULT_SETTINGS.background,
     customBackground: typeof data.customBackground === 'string' && isHexColor(data.customBackground) ? data.customBackground : DEFAULT_SETTINGS.customBackground,
-    textColor: typeof data.textColor === 'string' && isHexColor(data.textColor) ? data.textColor : DEFAULT_SETTINGS.textColor,
+    textColor: typeof data.textColor === 'string' && (data.textColor === '' || isHexColor(data.textColor)) ? data.textColor : DEFAULT_SETTINGS.textColor,
     caretColor: typeof data.caretColor === 'string' && isHexColor(data.caretColor) ? data.caretColor : '',
     typewriter: typeof data.typewriter === 'boolean' ? data.typewriter : DEFAULT_SETTINGS.typewriter,
     verticalPosition: numberIn(data.verticalPosition, 25, 75, DEFAULT_SETTINGS.verticalPosition),
@@ -80,4 +80,13 @@ export function backgroundColor(settings: ZenSettings): string {
     case 'dark': return '#202124';
     case 'custom': return settings.customBackground;
   }
+}
+
+export function resolvedTextColor(settings: ZenSettings): string {
+  if (settings.textColor) return settings.textColor;
+  const background = backgroundColor(settings);
+  const red = parseInt(background.slice(1, 3), 16);
+  const green = parseInt(background.slice(3, 5), 16);
+  const blue = parseInt(background.slice(5, 7), 16);
+  return (red * 299 + green * 587 + blue * 114) / 1000 >= 160 ? '#202124' : '#f5f1e8';
 }

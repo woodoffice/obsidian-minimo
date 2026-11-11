@@ -1,7 +1,7 @@
 import { App, MarkdownView, Notice, Plugin, PluginSettingTab, SettingDefinitionItem, WorkspaceLeaf } from 'obsidian';
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, DecorationSet } from '@codemirror/view';
 import { Compartment, StateEffect } from '@codemirror/state';
-import { backgroundColor, DEFAULT_SETTINGS, fontStack, isHexColor, normalizeSettings, ZenSettings } from './settings';
+import { backgroundColor, DEFAULT_SETTINGS, fontStack, isHexColor, normalizeSettings, resolvedTextColor, ZenSettings } from './settings';
 import { activeSentence, TextRange } from './focus';
 
 function codeMirrorView(markdown: MarkdownView): EditorView | null {
@@ -275,8 +275,9 @@ export default class ZenWriterPlugin extends Plugin {
     style.setProperty('--zen-line-height', String(this.settings.lineHeight));
     style.setProperty('--zen-line-width', `${this.settings.lineWidth}ch`);
     style.setProperty('--zen-background', backgroundColor(this.settings));
-    style.setProperty('--zen-text-color', this.settings.textColor);
-    style.setProperty('--zen-caret-color', this.settings.caretColor || this.settings.textColor);
+    const textColor = resolvedTextColor(this.settings);
+    style.setProperty('--zen-text-color', textColor);
+    style.setProperty('--zen-caret-color', this.settings.caretColor || textColor);
     style.setProperty('--zen-dim-opacity', String(this.settings.dimOpacity / 100));
   }
 
@@ -298,10 +299,10 @@ class ZenSettingTab extends PluginSettingTab {
   constructor(app: App, private readonly plugin: ZenWriterPlugin) { super(app, plugin); }
 
   getSettingDefinitions(): SettingDefinitionItem[] {
-    const color = (key: 'customBackground' | 'textColor' | 'caretColor', name: string, optional = false): SettingDefinitionItem => ({
+    const color = (key: 'customBackground' | 'textColor' | 'caretColor', name: string, desc?: string, placeholder = '#000000'): SettingDefinitionItem => ({
       name,
-      desc: optional ? 'Leave blank to match text.' : undefined,
-      control: { type: 'text', key, placeholder: optional ? 'Use text color' : '#000000', validate: (value) => optional && value === '' || isHexColor(value) ? undefined : 'Enter a six-digit hex color.' },
+      desc,
+      control: { type: 'text', key, placeholder, validate: (value) => key !== 'customBackground' && value === '' || isHexColor(value) ? undefined : 'Enter a six-digit hex color.' },
       visible: key === 'customBackground' ? () => this.plugin.settings.background === 'custom' : true,
     });
     return [
@@ -312,8 +313,8 @@ class ZenSettingTab extends PluginSettingTab {
       { name: 'Text width', desc: 'Characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value}ch` } },
       { name: 'Background', control: { type: 'dropdown', key: 'background', options: { dark: 'Dark charcoal', white: 'White', paper: 'Warm paper', custom: 'Custom' } } },
       color('customBackground', 'Custom background'),
-      color('textColor', 'Text color'),
-      color('caretColor', 'Caret color', true),
+      color('textColor', 'Text color', 'Leave blank for automatic contrast.', 'Auto'),
+      color('caretColor', 'Caret color', 'Leave blank to match text.', 'Use text color'),
       { name: 'Typewriter scrolling', desc: 'Center the line while typing.', control: { type: 'toggle', key: 'typewriter' } },
       { name: 'Line position', control: { type: 'slider', key: 'verticalPosition', min: 25, max: 75, step: 1, displayFormat: (value) => `${value}%` }, visible: () => this.plugin.settings.typewriter },
       { name: 'Focus', desc: 'Dim surrounding text.', control: { type: 'dropdown', key: 'focus', options: { off: 'Off', sentence: 'Sentence', paragraph: 'Paragraph' } } },

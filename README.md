@@ -13,7 +13,7 @@ Zen covers the other panes and app chrome without closing or moving them. The ac
 
 ## Settings
 
-Choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or the name of a font installed locally. Fonts are not included. A missing font falls back to the system monospace stack. Set font size, line height, centered line width, background and text colors, and an optional caret color. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
+Choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or the name of a font installed locally. Fonts are not included. A missing font falls back to the system monospace stack. Set font size, line height, centered line width, background and text colors, and an optional caret color. Text color defaults to automatic contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
 
 ## Build and local test
 
