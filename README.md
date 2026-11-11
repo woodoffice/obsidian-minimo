@@ -15,7 +15,7 @@ Minimo covers the other panes and app chrome without closing or moving them. It 
 
 ## Settings
 
-The default is the system monospace font. You can choose Geist Mono, iA Writer Mono, Berkeley Mono, IBM Plex Mono, or another font installed locally. Fonts are not included; a missing font falls back to system mono. Set font size, line height, centered line width, title visibility, background and text colors, and an optional caret color. The default background follows Obsidian's theme in light and dark mode; preset backgrounds use automatic text contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text.
+The default is the system monospace font. IBM Plex Mono is included. Geist Mono, iA Writer Mono, Berkeley Mono, and custom fonts use installed copies; a missing font falls back to system mono. Set font size, line height, centered line width, title visibility, background and text colors, and an optional caret color. The default background follows Obsidian's theme in light and dark mode; preset backgrounds use automatic text contrast. Typewriter scrolling defaults to on; focus defaults to the current sentence. Focus changes only the display opacity of other text and rendered callouts.
 
 ## Build and local test
 
@@ -25,4 +25,4 @@ This plugin targets Obsidian 1.15.0 or newer on desktop. Run `npm install`, `npm
 
 The plugin does not use the network, telemetry, or files outside the vault. It stores only its appearance settings through Obsidian's plugin data API. It does not change Markdown content itself. For support before a public repository exists, contact the author directly; the eventual public repository will carry the issue tracker.
 
-The plugin source is licensed under the MIT License.
+The plugin source is licensed under the MIT License. Bundled IBM Plex Mono is licensed under the SIL Open Font License 1.1; its notice and terms are in `fonts/OFL.txt` and the release stylesheet.

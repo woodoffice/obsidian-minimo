@@ -72,6 +72,8 @@ export function normalizeSettings(raw: unknown): MinimoSettings {
 
 export function fontStack(settings: MinimoSettings): string {
   if (settings.font === 'system') return 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  if (settings.font === 'iA Writer Mono') return '"iA Writer Mono V", "iA Writer Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
+  if (settings.font === 'IBM Plex Mono') return '"Minimo IBM Plex Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
   const family = settings.font === 'local' ? settings.localFont : settings.font;
   const safe = family.replace(/["\\]/g, '').trim();
   return safe ? `"${safe}", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace` : 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';

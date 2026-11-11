@@ -15,6 +15,8 @@ void test('invalid persisted settings fall back or clamp to supported ranges', (
 
 void test('local font value remains inside a quoted CSS family and has fallback', () => {
   assert.match(fontStack(DEFAULT_SETTINGS), /^ui-monospace/);
+  assert.match(fontStack(normalizeSettings({ font: 'iA Writer Mono' })), /^"iA Writer Mono V", "iA Writer Mono", ui-monospace/);
+  assert.match(fontStack(normalizeSettings({ font: 'IBM Plex Mono' })), /^"Minimo IBM Plex Mono", "IBM Plex Mono", ui-monospace/);
   const settings = normalizeSettings({ font: 'local', localFont: 'My "Mono"' });
   assert.match(fontStack(settings), /^"My Mono", ui-monospace/);
   assert.match(fontStack(normalizeSettings({ font: 'local', localFont: '' })), /^ui-monospace/);

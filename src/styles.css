@@ -1,0 +1,131 @@
+body.minimo-active .titlebar,
+body.minimo-active .workspace-ribbon,
+body.minimo-active .workspace-tab-header-container,
+body.minimo-active .status-bar {
+  visibility: hidden !important;
+}
+
+body.minimo-active .minimo-active-leaf {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 1000 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  background: var(--minimo-background) !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  transition: none !important;
+}
+
+body.minimo-active .minimo-active-leaf .workspace-leaf-content,
+body.minimo-active .minimo-active-leaf .view-content,
+body.minimo-active .minimo-active-leaf .markdown-source-view,
+body.minimo-active .minimo-active-leaf .cm-editor {
+  width: 100% !important;
+  height: 100% !important;
+  background: var(--minimo-background) !important;
+}
+
+body.minimo-active .minimo-active-leaf .view-header,
+body.minimo-active .minimo-active-leaf .metadata-container,
+body.minimo-active .minimo-active-leaf .cm-gutters,
+body.minimo-active .minimo-active-leaf .markdown-source-view .embedded-backlinks {
+  display: none !important;
+}
+
+body.minimo-active .minimo-active-leaf:not(.minimo-show-title) .markdown-source-view .mod-header,
+body.minimo-active .minimo-active-leaf:not(.minimo-show-title) .inline-title {
+  display: none !important;
+}
+
+body.minimo-active .minimo-active-leaf.minimo-show-title .inline-title {
+  font-family: var(--minimo-font-family) !important;
+  font-size: var(--minimo-font-size) !important;
+  line-height: var(--minimo-line-height) !important;
+  font-weight: 700 !important;
+}
+
+body.minimo-active .minimo-active-leaf.minimo-show-title .markdown-source-view .cm-sizer > .inline-title {
+  box-sizing: border-box;
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  padding-inline: 24px !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor {
+  color: var(--minimo-text-color) !important;
+  caret-color: var(--minimo-caret-color) !important;
+  font-family: var(--minimo-font-family) !important;
+  font-size: var(--minimo-font-size) !important;
+  line-height: var(--minimo-line-height) !important;
+  transition: none !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-scroller,
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-content {
+  font-family: var(--minimo-font-family) !important;
+  font-size: var(--minimo-font-size) !important;
+  line-height: var(--minimo-line-height) !important;
+  color: var(--minimo-text-color) !important;
+  background: var(--minimo-background) !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-scroller {
+  overflow: auto !important;
+  scrollbar-width: none !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-scroller::-webkit-scrollbar {
+  display: none !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-sizer {
+  width: 100% !important;
+  max-width: calc(var(--minimo-line-width) + 48px) !important;
+  min-width: 0 !important;
+  margin-inline: auto !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-content {
+  box-sizing: border-box;
+  width: min(100%, calc(var(--minimo-line-width) + 48px));
+  max-width: none;
+  min-height: 100%;
+  margin-inline: auto;
+  padding: var(--minimo-edge-space, 48px) 24px !important;
+  caret-color: var(--minimo-caret-color) !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-line {
+  width: 100% !important;
+  max-width: none !important;
+  margin-inline: 0 !important;
+  padding-inline: 0 !important;
+  font-family: inherit !important;
+  line-height: inherit !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view.mod-cm6.is-readable-line-width .cm-contentContainer.cm-contentContainer > .cm-content > .cm-line {
+  margin-inline: 0 !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .HyperMD-header,
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-header {
+  font-size: var(--minimo-font-size) !important;
+  line-height: var(--minimo-line-height) !important;
+  font-family: inherit !important;
+  font-weight: 700 !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .cm-cursor {
+  border-left-color: var(--minimo-caret-color) !important;
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-editor .minimo-dimmed {
+  opacity: var(--minimo-dim-opacity);
+}
+
+body.minimo-active .minimo-active-leaf .markdown-source-view .cm-embed-block.cm-callout.minimo-dimmed-block {
+  opacity: var(--minimo-dim-opacity) !important;
+}

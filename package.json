@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc --noEmit && node esbuild.config.mjs production",
-    "dev": "node esbuild.config.mjs",
+    "build": "tsc --noEmit && node esbuild.config.mjs production && node scripts/build-styles.mjs",
+    "dev": "node scripts/build-styles.mjs && node esbuild.config.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src test",
     "test": "node --experimental-strip-types --test test/*.test.ts"

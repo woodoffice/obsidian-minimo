@@ -31,17 +31,18 @@ function paragraphRange(view: EditorView, cursor: number): TextRange {
   return { from: doc.line(first).from, to: doc.line(last).to };
 }
 
-function focusDecorations(view: EditorView, settings: MinimoSettings): DecorationSet {
-  if (settings.focus === 'off' || view.state.doc.length === 0) return Decoration.none;
+function focusedRange(view: EditorView, settings: MinimoSettings): TextRange {
   const cursor = view.state.selection.main.head;
   const paragraph = paragraphRange(view, cursor);
-  const active = settings.focus === 'paragraph'
-    ? paragraph
-    : (() => {
-      const content = view.state.doc.sliceString(paragraph.from, paragraph.to);
-      const sentence = activeSentence(content, cursor - paragraph.from);
-      return { from: paragraph.from + sentence.from, to: paragraph.from + sentence.to };
-    })();
+  if (settings.focus === 'paragraph') return paragraph;
+  const content = view.state.doc.sliceString(paragraph.from, paragraph.to);
+  const sentence = activeSentence(content, cursor - paragraph.from);
+  return { from: paragraph.from + sentence.from, to: paragraph.from + sentence.to };
+}
+
+function focusDecorations(view: EditorView, settings: MinimoSettings): DecorationSet {
+  if (settings.focus === 'off' || view.state.doc.length === 0) return Decoration.none;
+  const active = focusedRange(view, settings);
   const undimmed: TextRange[] = [active, ...view.state.selection.ranges
     .filter((range) => !range.empty)
     .map((range) => ({ from: range.from, to: range.to }))]
@@ -65,6 +66,7 @@ function focusDecorations(view: EditorView, settings: MinimoSettings): Decoratio
 class MinimoEditorView {
   decorations: DecorationSet = Decoration.none;
   private manualScroll = false;
+  private readonly measureCallouts = { read: () => null, write: () => this.syncCallouts() };
   private readonly onWheel = () => { this.manualScroll = true; };
   private readonly onPointerDown = (event: PointerEvent) => {
     if (event.target === this.view.scrollDOM) this.manualScroll = true;
@@ -84,6 +86,7 @@ class MinimoEditorView {
     if (update.docChanged) this.manualScroll = false;
     if (update.docChanged || update.selectionSet || update.viewportChanged) {
       this.decorations = focusDecorations(this.view, this.owner.settings);
+      this.view.requestMeasure(this.measureCallouts);
       if (update.docChanged || update.selectionSet) this.layout();
     }
   }
@@ -91,6 +94,7 @@ class MinimoEditorView {
   refresh(): void {
     const active = this.owner.isActiveEditor(this.view);
     this.decorations = active ? focusDecorations(this.view, this.owner.settings) : Decoration.none;
+    this.view.requestMeasure(this.measureCallouts);
     this.manualScroll = false;
     this.layout();
   }
@@ -124,7 +128,26 @@ class MinimoEditorView {
     });
   }
 
+  private syncCallouts(): void {
+    const callouts = this.view.contentDOM.querySelectorAll<HTMLElement>('.cm-embed-block.cm-callout');
+    const active = this.owner.isActiveEditor(this.view) && this.owner.settings.focus !== 'off'
+      ? focusedRange(this.view, this.owner.settings) : null;
+    const doc = this.view.state.doc;
+    callouts.forEach((callout) => {
+      if (!active) { callout.classList.remove('minimo-dimmed-block'); return; }
+      const first = doc.lineAt(this.view.posAtDOM(callout));
+      let last = first.number;
+      while (last < doc.lines && /^\s*>/.test(doc.line(last + 1).text)) last++;
+      const from = first.from;
+      const to = doc.line(last).to;
+      const focused = active.from < to && active.to > from;
+      const selected = this.view.state.selection.ranges.some((range) => !range.empty && range.from < to && range.to > from);
+      callout.classList.toggle('minimo-dimmed-block', !focused && !selected);
+    });
+  }
+
   destroy(): void {
+    this.view.contentDOM.querySelectorAll('.cm-callout.minimo-dimmed-block').forEach((callout) => callout.classList.remove('minimo-dimmed-block'));
     this.resize.disconnect();
     this.view.scrollDOM.removeEventListener('wheel', this.onWheel);
     this.view.scrollDOM.removeEventListener('pointerdown', this.onPointerDown);
@@ -308,7 +331,7 @@ class MinimoSettingTab extends PluginSettingTab {
       visible: key === 'customBackground' ? () => this.plugin.settings.background === 'custom' : true,
     });
     return [
-      { name: 'Font', control: { type: 'dropdown', key: 'font', options: { system: 'System mono', 'Geist Mono': 'Geist Mono', 'iA Writer Mono': 'iA Writer Mono', 'Berkeley Mono': 'Berkeley Mono', 'IBM Plex Mono': 'IBM Plex Mono', local: 'Local installed font' } } },
+      { name: 'Font', desc: 'IBM Plex Mono included. Other fonts require installation.', control: { type: 'dropdown', key: 'font', options: { system: 'System mono', 'Geist Mono': 'Geist Mono', 'iA Writer Mono': 'iA Writer Mono', 'Berkeley Mono': 'Berkeley Mono', 'IBM Plex Mono': 'IBM Plex Mono', local: 'Local installed font' } } },
       { name: 'Local font', desc: 'Installed fonts only. Falls back to system monospace.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
       { name: 'Font size', control: { type: 'slider', key: 'fontSize', min: 14, max: 36, step: 1, displayFormat: (value) => `${value}px` } },
       { name: 'Line height', control: { type: 'slider', key: 'lineHeight', min: 1.2, max: 2.2, step: 0.05 } },
