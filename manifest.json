@@ -1,0 +1,9 @@
+{
+  "id": "zen-writing-mode",
+  "name": "Zen Writing Mode",
+  "version": "0.1.0",
+  "minAppVersion": "1.15.1",
+  "description": "Write in a quiet, centered Markdown editor with typewriter scrolling and visual focus.",
+  "author": "Stanley Wood",
+  "isDesktopOnly": true
+}
