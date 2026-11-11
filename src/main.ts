@@ -1,7 +1,7 @@
 import { App, MarkdownView, Notice, Plugin, PluginSettingTab, SettingDefinitionItem, WorkspaceLeaf } from 'obsidian';
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, DecorationSet } from '@codemirror/view';
 import { Compartment, StateEffect } from '@codemirror/state';
-import { backgroundColor, DEFAULT_SETTINGS, fontStack, isHexColor, normalizeSettings, resolvedTextColor, ZenSettings } from './settings';
+import { backgroundColor, DEFAULT_SETTINGS, fontStack, isHexColor, normalizeSettings, resolvedTextColor, MinimoSettings } from './settings';
 import { activeSentence, TextRange } from './focus';
 
 function codeMirrorView(markdown: MarkdownView): EditorView | null {
@@ -31,7 +31,7 @@ function paragraphRange(view: EditorView, cursor: number): TextRange {
   return { from: doc.line(first).from, to: doc.line(last).to };
 }
 
-function focusDecorations(view: EditorView, settings: ZenSettings): DecorationSet {
+function focusDecorations(view: EditorView, settings: MinimoSettings): DecorationSet {
   if (settings.focus === 'off' || view.state.doc.length === 0) return Decoration.none;
   const cursor = view.state.selection.main.head;
   const paragraph = paragraphRange(view, cursor);
@@ -55,14 +55,14 @@ function focusDecorations(view: EditorView, settings: ZenSettings): DecorationSe
   const marks = [];
   let start = 0;
   for (const range of merged) {
-    if (range.from > start) marks.push(Decoration.mark({ class: 'zen-dimmed' }).range(start, range.from));
+    if (range.from > start) marks.push(Decoration.mark({ class: 'minimo-dimmed' }).range(start, range.from));
     start = Math.max(start, range.to);
   }
-  if (start < view.state.doc.length) marks.push(Decoration.mark({ class: 'zen-dimmed' }).range(start, view.state.doc.length));
+  if (start < view.state.doc.length) marks.push(Decoration.mark({ class: 'minimo-dimmed' }).range(start, view.state.doc.length));
   return Decoration.set(marks);
 }
 
-class ZenEditorView {
+class MinimoEditorView {
   decorations: DecorationSet = Decoration.none;
   private manualScroll = false;
   private readonly onWheel = () => { this.manualScroll = true; };
@@ -71,7 +71,7 @@ class ZenEditorView {
   };
   private readonly resize: ResizeObserver;
 
-  constructor(private readonly view: EditorView, private readonly owner: ZenWriterPlugin) {
+  constructor(private readonly view: EditorView, private readonly owner: MinimoPlugin) {
     view.scrollDOM.addEventListener('wheel', this.onWheel, { passive: true });
     view.scrollDOM.addEventListener('pointerdown', this.onPointerDown);
     this.resize = new ResizeObserver(() => this.layout());
@@ -97,13 +97,13 @@ class ZenEditorView {
 
   private layout(): void {
     if (!this.owner.isActiveEditor(this.view) || !this.owner.settings.typewriter) {
-      this.view.dom.ownerDocument.body.style.removeProperty('--zen-edge-space');
+      this.view.dom.ownerDocument.body.style.removeProperty('--minimo-edge-space');
       return;
     }
     this.view.requestMeasure({
       read: () => Math.max(0, this.view.scrollDOM.clientHeight * this.owner.settings.verticalPosition / 100 - this.view.defaultLineHeight / 2),
       write: (space) => {
-        this.view.dom.ownerDocument.body.style.setProperty('--zen-edge-space', `${space}px`);
+        this.view.dom.ownerDocument.body.style.setProperty('--minimo-edge-space', `${space}px`);
         if (!this.manualScroll) this.centerCaret();
       },
     });
@@ -128,20 +128,20 @@ class ZenEditorView {
     this.resize.disconnect();
     this.view.scrollDOM.removeEventListener('wheel', this.onWheel);
     this.view.scrollDOM.removeEventListener('pointerdown', this.onPointerDown);
-    this.view.dom.ownerDocument.body.style.removeProperty('--zen-edge-space');
+    this.view.dom.ownerDocument.body.style.removeProperty('--minimo-edge-space');
   }
 }
 
-function createEditorExtension(owner: ZenWriterPlugin) {
+function createEditorExtension(owner: MinimoPlugin) {
   return ViewPlugin.fromClass(
-    class extends ZenEditorView {
+    class extends MinimoEditorView {
       constructor(view: EditorView) { super(view, owner); }
     },
     { decorations: (plugin) => plugin.decorations },
   );
 }
 
-interface ZenSession {
+interface MinimoSession {
   leaf: WorkspaceLeaf;
   filePath: string;
   leafElement: HTMLElement;
@@ -154,16 +154,16 @@ interface ZenSession {
   keydown: (event: KeyboardEvent) => void;
 }
 
-export default class ZenWriterPlugin extends Plugin {
-  settings: ZenSettings = DEFAULT_SETTINGS;
-  private session: ZenSession | null = null;
+export default class MinimoPlugin extends Plugin {
+  settings: MinimoSettings = DEFAULT_SETTINGS;
+  private session: MinimoSession | null = null;
   private readonly compartments = new WeakMap<EditorView, Compartment>();
   private readonly editorExtension = createEditorExtension(this);
 
   async onload(): Promise<void> {
     this.settings = normalizeSettings(await this.loadData());
-    this.addCommand({ id: 'toggle', name: 'Toggle Zen mode', callback: () => this.toggle() });
-    this.addSettingTab(new ZenSettingTab(this.app, this));
+    this.addCommand({ id: 'toggle', name: 'Toggle writing view', callback: () => this.toggle() });
+    this.addSettingTab(new MinimoSettingTab(this.app, this));
     this.registerEvent(this.app.workspace.on('active-leaf-change', (leaf) => {
       if (this.session && leaf !== this.session.leaf) this.exit(false);
     }));
@@ -214,7 +214,7 @@ export default class ZenWriterPlugin extends Plugin {
         this.exit(true);
       }
     };
-    const session: ZenSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
+    const session: MinimoSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
     this.session = session;
     try {
       view.dispatch({ effects: firstUse
@@ -222,8 +222,8 @@ export default class ZenWriterPlugin extends Plugin {
         : compartment.reconfigure(this.editorExtension) });
       session.editorAttached = true;
       if (!view.plugin(this.editorExtension)) throw new Error('Editor extension unavailable');
-      leafElement.classList.add('zen-active-leaf');
-      body.classList.add('zen-writer-active');
+      leafElement.classList.add('minimo-active-leaf');
+      body.classList.add('minimo-active');
       this.applyStyle();
       view.plugin(this.editorExtension)?.refresh();
       view.dom.addEventListener('keydown', keydown, true);
@@ -247,9 +247,9 @@ export default class ZenWriterPlugin extends Plugin {
     const session = this.session;
     if (!session) return;
     this.session = null;
-    session.body.classList.remove('zen-writer-active');
-    session.leafElement.classList.remove('zen-active-leaf');
-    session.leafElement.classList.remove('zen-show-title');
+    session.body.classList.remove('minimo-active');
+    session.leafElement.classList.remove('minimo-active-leaf');
+    session.leafElement.classList.remove('minimo-show-title');
     session.view.dom.removeEventListener('keydown', session.keydown, true);
     try {
       if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });
@@ -270,22 +270,22 @@ export default class ZenWriterPlugin extends Plugin {
   private applyStyle(): void {
     const session = this.session;
     if (!session) return;
-    session.leafElement.classList.toggle('zen-show-title', this.settings.showTitle);
+    session.leafElement.classList.toggle('minimo-show-title', this.settings.showTitle);
     const style = session.body.style;
-    style.setProperty('--zen-font-family', fontStack(this.settings));
-    style.setProperty('--zen-font-size', `${this.settings.fontSize}px`);
-    style.setProperty('--zen-line-height', String(this.settings.lineHeight));
-    style.setProperty('--zen-line-width', `${this.settings.lineWidth}ch`);
-    style.setProperty('--zen-background', backgroundColor(this.settings));
+    style.setProperty('--minimo-font-family', fontStack(this.settings));
+    style.setProperty('--minimo-font-size', `${this.settings.fontSize}px`);
+    style.setProperty('--minimo-line-height', String(this.settings.lineHeight));
+    style.setProperty('--minimo-line-width', `${this.settings.lineWidth}ch`);
+    style.setProperty('--minimo-background', backgroundColor(this.settings));
     const textColor = resolvedTextColor(this.settings);
-    style.setProperty('--zen-text-color', textColor);
-    style.setProperty('--zen-caret-color', this.settings.caretColor || textColor);
-    style.setProperty('--zen-dim-opacity', String(this.settings.dimOpacity / 100));
+    style.setProperty('--minimo-text-color', textColor);
+    style.setProperty('--minimo-caret-color', this.settings.caretColor || textColor);
+    style.setProperty('--minimo-dim-opacity', String(this.settings.dimOpacity / 100));
   }
 
   private clearStyle(body: HTMLElement): void {
     for (const name of ['font-family', 'font-size', 'line-height', 'line-width', 'background', 'text-color', 'caret-color', 'dim-opacity', 'edge-space']) {
-      body.style.removeProperty(`--zen-${name}`);
+      body.style.removeProperty(`--minimo-${name}`);
     }
   }
 
@@ -297,8 +297,8 @@ export default class ZenWriterPlugin extends Plugin {
   }
 }
 
-class ZenSettingTab extends PluginSettingTab {
-  constructor(app: App, private readonly plugin: ZenWriterPlugin) { super(app, plugin); }
+class MinimoSettingTab extends PluginSettingTab {
+  constructor(app: App, private readonly plugin: MinimoPlugin) { super(app, plugin); }
 
   getSettingDefinitions(): SettingDefinitionItem[] {
     const color = (key: 'customBackground' | 'textColor' | 'caretColor', name: string, desc?: string, placeholder = '#000000'): SettingDefinitionItem => ({

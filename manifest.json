@@ -1,9 +1,9 @@
 {
-  "id": "zen-writer",
-  "name": "Zen Writer",
+  "id": "minimo",
+  "name": "Minimo",
   "version": "0.1.0",
   "minAppVersion": "1.15.0",
-  "description": "Write in a centered editor with typewriter scrolling and focus.",
-  "author": "Stanley Wood",
+  "description": "A quiet, centered writing view for the current note.",
+  "author": "WOOD OFFICE",
   "isDesktopOnly": true
 }

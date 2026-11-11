@@ -2,7 +2,7 @@ export type FontChoice = 'Geist Mono' | 'iA Writer Mono' | 'Berkeley Mono' | 'IB
 export type BackgroundChoice = 'theme' | 'dark' | 'white' | 'paper' | 'custom';
 export type FocusChoice = 'off' | 'sentence' | 'paragraph';
 
-export interface ZenSettings {
+export interface MinimoSettings {
   font: FontChoice;
   localFont: string;
   fontSize: number;
@@ -19,7 +19,7 @@ export interface ZenSettings {
   dimOpacity: number;
 }
 
-export const DEFAULT_SETTINGS: ZenSettings = {
+export const DEFAULT_SETTINGS: MinimoSettings = {
   font: 'Geist Mono',
   localFont: '',
   fontSize: 23,
@@ -50,7 +50,7 @@ function numberIn(value: unknown, min: number, max: number, fallback: number): n
     : fallback;
 }
 
-export function normalizeSettings(raw: unknown): ZenSettings {
+export function normalizeSettings(raw: unknown): MinimoSettings {
   const data = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
   return {
     font: fonts.includes(data.font as FontChoice) ? data.font as FontChoice : DEFAULT_SETTINGS.font,
@@ -70,13 +70,13 @@ export function normalizeSettings(raw: unknown): ZenSettings {
   };
 }
 
-export function fontStack(settings: ZenSettings): string {
+export function fontStack(settings: MinimoSettings): string {
   const family = settings.font === 'local' ? settings.localFont : settings.font;
   const safe = family.replace(/["\\]/g, '').trim();
   return safe ? `"${safe}", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace` : 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
 }
 
-export function backgroundColor(settings: ZenSettings): string {
+export function backgroundColor(settings: MinimoSettings): string {
   switch (settings.background) {
     case 'theme': return 'var(--background-primary)';
     case 'white': return '#ffffff';
@@ -86,7 +86,7 @@ export function backgroundColor(settings: ZenSettings): string {
   }
 }
 
-export function resolvedTextColor(settings: ZenSettings): string {
+export function resolvedTextColor(settings: MinimoSettings): string {
   if (settings.textColor) return settings.textColor;
   if (settings.background === 'theme') return 'var(--text-normal)';
   const background = backgroundColor(settings);
