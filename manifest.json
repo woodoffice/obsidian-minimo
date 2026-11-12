@@ -1,9 +1,9 @@
 {
   "id": "minimo",
   "name": "Minimo",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "minAppVersion": "1.15.0",
-  "description": "A minimalist writing mode for Obsidian. Focus on your writing, then return to your workspace.",
+  "description": "A minimalist writing mode. Focus on your writing, then return to your workspace.",
   "author": "WOOD OFFICE",
   "isDesktopOnly": true
 }
