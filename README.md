@@ -23,6 +23,6 @@ This plugin targets Obsidian 1.15.0 or newer on desktop. Run `npm install`, `npm
 
 ## Privacy and support
 
-The plugin does not use the network, telemetry, or files outside the vault. It stores only its appearance settings through Obsidian's plugin data API. It does not change Markdown content itself. For support before a public repository exists, contact the author directly; the eventual public repository will carry the issue tracker.
+The plugin does not use the network, telemetry, or files outside the vault. It stores only its appearance settings through Obsidian's plugin data API. It does not change Markdown content itself. For support, use the [GitHub issue tracker](https://github.com/woodoffice/obsidian-minimo/issues).
 
 The plugin source is licensed under the MIT License. Bundled IBM Plex Mono is licensed under the SIL Open Font License 1.1; its notice and terms are in `fonts/OFL.txt` and the release stylesheet.
