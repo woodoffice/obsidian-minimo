@@ -6,6 +6,8 @@ body.minimo-active .status-bar {
 }
 
 body.minimo-active .minimo-active-leaf {
+  --line-width: var(--minimo-line-width);
+  --max-width: 100%;
   position: fixed;
   inset: 0;
   z-index: 1000;
