@@ -21,12 +21,24 @@ void test('blank or unpunctuated text remains a single focus range', () => {
   assert.deepEqual(activeSentence('A quiet line', 5), { from: 0, to: 12 });
 });
 
-void test('ellipses and Unicode sentence marks split at the following space', () => {
+void test('sentence-ending ellipses and Unicode sentence marks split at the following space', () => {
   assert.deepEqual(sentenceRanges('Wait... Then write。 Next'), [
     { from: 0, to: 7 },
     { from: 8, to: 19 },
     { from: 20, to: 24 },
   ]);
+});
+
+void test('ellipses followed by lowercase words stay in the same sentence', () => {
+  for (const mark of ['...', '…']) {
+    const text = `The woods were barren${mark} the trees had grown. A new thought.`;
+    const next = text.indexOf(' A new thought.');
+    assert.deepEqual(sentenceRanges(text), [
+      { from: 0, to: next },
+      { from: next + 1, to: text.length },
+    ]);
+    assert.deepEqual(activeSentence(text, text.indexOf('trees')), { from: 0, to: next });
+  }
 });
 
 void test('Markdown emphasis does not split a common abbreviation', () => {

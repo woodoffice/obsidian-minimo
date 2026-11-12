@@ -15,6 +15,8 @@ export function sentenceRanges(text: string): TextRange[] {
     let end = i + 1;
     while (/["'”’）)\]*_`]/.test(text[end] ?? '')) end++;
     if (end < text.length && !/\s/.test(text[end])) continue;
+    const ellipsis = mark === '…' || (mark === '.' && text[i - 1] === '.' && text[i - 2] === '.');
+    if (ellipsis && /^\s+\p{Ll}/u.test(text.slice(end))) continue;
     ranges.push({ from: start, to: end });
     start = end;
     while (/\s/.test(text[start] ?? '') && start < text.length) start++;
