@@ -21,23 +21,34 @@ void test('blank or unpunctuated text remains a single focus range', () => {
   assert.deepEqual(activeSentence('A quiet line', 5), { from: 0, to: 12 });
 });
 
-void test('sentence-ending ellipses and Unicode sentence marks split at the following space', () => {
+void test('ellipses continue while Unicode sentence marks split at the following space', () => {
   assert.deepEqual(sentenceRanges('Wait... Then write。 Next'), [
-    { from: 0, to: 7 },
-    { from: 8, to: 19 },
+    { from: 0, to: 19 },
     { from: 20, to: 24 },
   ]);
 });
 
-void test('ellipses followed by lowercase words stay in the same sentence', () => {
+void test('ellipses followed by lowercase or uppercase words stay in the same sentence', () => {
   for (const mark of ['...', '…']) {
-    const text = `The woods were barren${mark} the trees had grown. A new thought.`;
-    const next = text.indexOf(' A new thought.');
+    for (const nextWord of ['the', 'The']) {
+      const text = `The woods were barren${mark} ${nextWord} trees had grown. A new thought.`;
+      const next = text.indexOf(' A new thought.');
+      assert.deepEqual(sentenceRanges(text), [
+        { from: 0, to: next },
+        { from: next + 1, to: text.length },
+      ]);
+      assert.deepEqual(activeSentence(text, text.indexOf('trees')), { from: 0, to: next });
+    }
+  }
+});
+
+void test('full stops, question marks, and exclamation marks split lowercase sentences', () => {
+  for (const mark of ['.', '?', '!']) {
+    const text = `i stopped${mark} then i left.`;
     assert.deepEqual(sentenceRanges(text), [
-      { from: 0, to: next },
-      { from: next + 1, to: text.length },
+      { from: 0, to: 9 + mark.length },
+      { from: 10 + mark.length, to: text.length },
     ]);
-    assert.deepEqual(activeSentence(text, text.indexOf('trees')), { from: 0, to: next });
   }
 });
 

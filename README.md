@@ -6,6 +6,8 @@ Minimo is a minimalist writing mode for Obsidian. Set a shortcut to step into a 
 
 The name comes from *il minimo indispensabile*, an Italian phrase for the least you need. My Olivetti Lettera 32 feels like that to me: a page, a keyboard, and room to hear my own thoughts. I wanted to bring a little of that feeling to Obsidian.
 
+![Minimo writing view in light and dark modes](artwork/minimo-screenshot.png)
+
 ## Use
 
 1. Open a Markdown note in Live Preview on desktop Obsidian.
