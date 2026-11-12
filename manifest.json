@@ -1,7 +1,7 @@
 {
   "id": "minimo",
   "name": "Minimo",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "1.15.0",
   "description": "A quiet, centered writing view for the current note.",
   "author": "WOOD OFFICE",
