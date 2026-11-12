@@ -1,4 +1,4 @@
-export type FontChoice = 'system' | 'Geist Mono' | 'iA Writer Mono' | 'Berkeley Mono' | 'IBM Plex Mono' | 'local';
+export type FontChoice = 'system' | 'IBM Plex Mono' | 'local';
 export type BackgroundChoice = 'theme' | 'dark' | 'white' | 'paper' | 'custom';
 export type FocusChoice = 'off' | 'sentence' | 'paragraph';
 
@@ -36,7 +36,8 @@ export const DEFAULT_SETTINGS: MinimoSettings = {
   dimOpacity: 30,
 };
 
-const fonts: FontChoice[] = ['system', 'Geist Mono', 'iA Writer Mono', 'Berkeley Mono', 'IBM Plex Mono', 'local'];
+const fonts: FontChoice[] = ['system', 'IBM Plex Mono', 'local'];
+const formerFonts = ['Geist Mono', 'iA Writer Mono', 'Berkeley Mono'];
 const backgrounds: BackgroundChoice[] = ['theme', 'dark', 'white', 'paper', 'custom'];
 const focuses: FocusChoice[] = ['off', 'sentence', 'paragraph'];
 
@@ -52,9 +53,11 @@ function numberIn(value: unknown, min: number, max: number, fallback: number): n
 
 export function normalizeSettings(raw: unknown): MinimoSettings {
   const data = raw && typeof raw === 'object' ? raw as Record<string, unknown> : {};
+  const formerFont = typeof data.font === 'string' && formerFonts.includes(data.font) ? data.font : '';
+  const localFont = typeof data.localFont === 'string' ? data.localFont.replace(/[\n\r\t]/g, ' ').slice(0, 100).trim() : '';
   return {
-    font: fonts.includes(data.font as FontChoice) ? data.font as FontChoice : DEFAULT_SETTINGS.font,
-    localFont: typeof data.localFont === 'string' ? data.localFont.replace(/[\n\r\t]/g, ' ').slice(0, 100).trim() : '',
+    font: formerFont ? 'local' : fonts.includes(data.font as FontChoice) ? data.font as FontChoice : DEFAULT_SETTINGS.font,
+    localFont: formerFont || localFont,
     fontSize: numberIn(data.fontSize, 14, 36, DEFAULT_SETTINGS.fontSize),
     lineHeight: numberIn(data.lineHeight, 1.2, 2.2, DEFAULT_SETTINGS.lineHeight),
     lineWidth: numberIn(data.lineWidth, 40, 100, DEFAULT_SETTINGS.lineWidth),
@@ -72,7 +75,6 @@ export function normalizeSettings(raw: unknown): MinimoSettings {
 
 export function fontStack(settings: MinimoSettings): string {
   if (settings.font === 'system') return 'ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
-  if (settings.font === 'iA Writer Mono') return '"iA Writer Mono V", "iA Writer Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
   if (settings.font === 'IBM Plex Mono') return '"Minimo IBM Plex Mono", "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace';
   const family = settings.font === 'local' ? settings.localFont : settings.font;
   const safe = family.replace(/["\\]/g, '').trim();

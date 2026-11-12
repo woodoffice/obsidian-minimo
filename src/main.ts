@@ -331,8 +331,8 @@ class MinimoSettingTab extends PluginSettingTab {
       visible: key === 'customBackground' ? () => this.plugin.settings.background === 'custom' : true,
     });
     return [
-      { name: 'Font', desc: 'IBM Plex Mono included. Other fonts require installation.', control: { type: 'dropdown', key: 'font', options: { system: 'System mono', 'Geist Mono': 'Geist Mono', 'iA Writer Mono': 'iA Writer Mono', 'Berkeley Mono': 'Berkeley Mono', 'IBM Plex Mono': 'IBM Plex Mono', local: 'Local installed font' } } },
-      { name: 'Local font', desc: 'Installed fonts only. Falls back to system monospace.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
+      { name: 'Font', desc: 'IBM Plex Mono is included. You can also use a font installed on this computer.', control: { type: 'dropdown', key: 'font', options: { 'IBM Plex Mono': 'IBM Plex Mono', system: 'System mono', local: 'Installed font' } } },
+      { name: 'Installed font', desc: 'Enter its font family name. Falls back to system mono if unavailable.', control: { type: 'text', key: 'localFont' }, visible: () => this.plugin.settings.font === 'local' },
       { name: 'Font size', control: { type: 'slider', key: 'fontSize', min: 14, max: 36, step: 1, displayFormat: (value) => `${value}px` } },
       { name: 'Line height', control: { type: 'slider', key: 'lineHeight', min: 1.2, max: 2.2, step: 0.05 } },
       { name: 'Line width', desc: 'Approximate characters per line.', control: { type: 'slider', key: 'lineWidth', min: 40, max: 100, step: 1, displayFormat: (value) => `${value} chars` } },

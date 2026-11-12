@@ -15,11 +15,19 @@ void test('invalid persisted settings fall back or clamp to supported ranges', (
 
 void test('local font value remains inside a quoted CSS family and has fallback', () => {
   assert.match(fontStack(DEFAULT_SETTINGS), /^ui-monospace/);
-  assert.match(fontStack(normalizeSettings({ font: 'iA Writer Mono' })), /^"iA Writer Mono V", "iA Writer Mono", ui-monospace/);
   assert.match(fontStack(normalizeSettings({ font: 'IBM Plex Mono' })), /^"Minimo IBM Plex Mono", "IBM Plex Mono", ui-monospace/);
   const settings = normalizeSettings({ font: 'local', localFont: 'My "Mono"' });
   assert.match(fontStack(settings), /^"My Mono", ui-monospace/);
   assert.match(fontStack(normalizeSettings({ font: 'local', localFont: '' })), /^ui-monospace/);
+});
+
+void test('former named fonts become installed fonts without losing the selection', () => {
+  for (const font of ['Geist Mono', 'iA Writer Mono', 'Berkeley Mono']) {
+    const settings = normalizeSettings({ font, localFont: 'Old custom font' });
+    assert.equal(settings.font, 'local');
+    assert.equal(settings.localFont, font);
+    assert.match(fontStack(settings), new RegExp(`^"${font}"`));
+  }
 });
 
 void test('automatic text color contrasts with light and dark backgrounds', () => {

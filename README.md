@@ -2,9 +2,9 @@
 
 Room to write.
 
-Minimo gives the current note a quiet, centered page. Same editor. Same file. Turning the view on or off leaves your Markdown untouched.
+Minimo is a minimalist writing mode for Obsidian. Set a shortcut to step into a quieter view of your note, then return to your workspace without losing your place.
 
-By WOOD OFFICE.
+The name comes from *il minimo indispensabile*, an Italian phrase for the least you need. My Olivetti Lettera 32 feels like that to me: a page, a keyboard, and room to hear my own thoughts. I wanted to bring a little of that feeling to Obsidian.
 
 ## Use
 
@@ -25,7 +25,7 @@ Minimo covers the other panes and app chrome without closing them.
 
 ## Settings
 
-**Type.** Use system mono or the included IBM Plex Mono. Geist Mono, iA Writer Mono, Berkeley Mono, and custom fonts use copies installed on your machine. Missing fonts fall back to system mono.
+**Type.** Choose the included IBM Plex Mono, your system mono font, or a font installed on your computer. If an installed font is unavailable, Minimo uses system mono.
 
 **Page.** Set the type size, line height, line width, title visibility, background, text color, and caret color. The default background follows your Obsidian theme in light and dark mode.
 

@@ -1,9 +1,9 @@
 {
   "id": "minimo",
   "name": "Minimo",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "minAppVersion": "1.15.0",
-  "description": "A quiet, centered writing view for the current note.",
+  "description": "A minimalist writing mode for Obsidian. Focus on your writing, then return to your workspace.",
   "author": "WOOD OFFICE",
   "isDesktopOnly": true
 }
