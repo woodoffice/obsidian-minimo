@@ -1,0 +1,42 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '[0-9]*.[0-9]*.[0-9]*'
+
+permissions:
+  contents: write
+  id-token: write
+  attestations: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+      - run: npm test
+      - name: Check release version
+        env:
+          RELEASE_VERSION: ${{ github.ref_name }}
+        run: |
+          node -e 'const fs = require("node:fs"); const version = process.env.RELEASE_VERSION; for (const file of ["manifest.json", "package.json"]) { if (JSON.parse(fs.readFileSync(file, "utf8")).version !== version) throw new Error(`${file} does not match tag ${version}`); }'
+      - name: Attest plugin bundle
+        uses: actions/attest@v4
+        with:
+          subject-path: main.js
+      - name: Attest stylesheet
+        uses: actions/attest@v4
+        with:
+          subject-path: styles.css
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" main.js manifest.json styles.css --verify-tag --generate-notes --title "Minimo $GITHUB_REF_NAME"
