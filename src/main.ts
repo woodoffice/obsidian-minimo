@@ -1,4 +1,4 @@
-import { App, MarkdownView, Notice, Plugin, PluginSettingTab, SettingDefinitionItem, WorkspaceLeaf } from 'obsidian';
+import { App, MarkdownView, Notice, Platform, Plugin, PluginSettingTab, SettingDefinitionItem, WorkspaceLeaf } from 'obsidian';
 import { EditorView, ViewPlugin, ViewUpdate, Decoration, DecorationSet } from '@codemirror/view';
 import { Compartment, StateEffect } from '@codemirror/state';
 import { backgroundColor, DEFAULT_SETTINGS, fontStack, isHexColor, normalizeSettings, resolvedTextColor, MinimoSettings } from './settings';
@@ -68,6 +68,7 @@ class MinimoEditorView {
   private manualScroll = false;
   private readonly measureCallouts = { read: () => null, write: () => this.syncCallouts() };
   private readonly onWheel = () => { this.manualScroll = true; };
+  private readonly onTouchStart = () => { this.manualScroll = true; };
   private readonly onPointerDown = (event: PointerEvent) => {
     if (event.target === this.view.scrollDOM) this.manualScroll = true;
   };
@@ -75,6 +76,7 @@ class MinimoEditorView {
 
   constructor(private readonly view: EditorView, private readonly owner: MinimoPlugin) {
     view.scrollDOM.addEventListener('wheel', this.onWheel, { passive: true });
+    view.scrollDOM.addEventListener('touchstart', this.onTouchStart, { passive: true });
     view.scrollDOM.addEventListener('pointerdown', this.onPointerDown);
     this.resize = new ResizeObserver(() => this.layout());
     this.resize.observe(view.scrollDOM);
@@ -150,6 +152,7 @@ class MinimoEditorView {
     this.view.contentDOM.querySelectorAll('.cm-callout.minimo-dimmed-block').forEach((callout) => callout.classList.remove('minimo-dimmed-block'));
     this.resize.disconnect();
     this.view.scrollDOM.removeEventListener('wheel', this.onWheel);
+    this.view.scrollDOM.removeEventListener('touchstart', this.onTouchStart);
     this.view.scrollDOM.removeEventListener('pointerdown', this.onPointerDown);
     this.view.dom.ownerDocument.body.style.removeProperty('--minimo-edge-space');
   }
@@ -172,6 +175,7 @@ interface MinimoSession {
   compartment: Compartment;
   editorAttached: boolean;
   body: HTMLElement;
+  exitButton: HTMLButtonElement | null;
   scrollTop: number;
   hadFocus: boolean;
   keydown: (event: KeyboardEvent) => void;
@@ -237,7 +241,7 @@ export default class MinimoPlugin extends Plugin {
         this.exit(true);
       }
     };
-    const session: MinimoSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
+    const session: MinimoSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, exitButton: null, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
     this.session = session;
     try {
       view.dispatch({ effects: firstUse
@@ -247,6 +251,16 @@ export default class MinimoPlugin extends Plugin {
       if (!view.plugin(this.editorExtension)) throw new Error('Editor extension unavailable');
       leafElement.classList.add('minimo-active-leaf');
       body.classList.add('minimo-active');
+      if (Platform.isMobile) {
+        body.classList.add('minimo-mobile');
+        const exitButton = leafElement.createEl('button');
+        exitButton.type = 'button';
+        exitButton.className = 'minimo-exit';
+        exitButton.setAttribute('aria-label', 'Leave writing view');
+        exitButton.textContent = '×';
+        exitButton.addEventListener('click', () => this.exit(true));
+        session.exitButton = exitButton;
+      }
       this.applyStyle();
       view.plugin(this.editorExtension)?.refresh();
       body.ownerDocument.addEventListener('keydown', keydown, true);
@@ -270,8 +284,10 @@ export default class MinimoPlugin extends Plugin {
     if (!session) return;
     this.session = null;
     session.body.classList.remove('minimo-active');
+    session.body.classList.remove('minimo-mobile');
     session.leafElement.classList.remove('minimo-active-leaf');
     session.leafElement.classList.remove('minimo-show-title');
+    session.exitButton?.remove();
     session.body.ownerDocument.removeEventListener('keydown', session.keydown, true);
     try {
       if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });

@@ -12,4 +12,5 @@ export default tseslint.config(
     languageOptions: { parserOptions: { projectService: true } },
     rules: { 'obsidianmd/ui/sentence-case': ['warn', { brands: ['Zen', 'Markdown', 'Live Preview'] }] },
   },
+  { files: ['test/**/*.ts'], rules: { 'obsidianmd/no-nodejs-modules': 'off' } },
 );
