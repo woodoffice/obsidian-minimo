@@ -111,13 +111,18 @@ body.minimo-active .minimo-active-leaf {
   --max-width: 100%;
   position: fixed;
   inset: 0;
-  z-index: calc(var(--layer-popover, 30) - 1);
+  z-index: 20;
   width: 100vw;
   height: 100vh;
   background: var(--minimo-background);
   box-shadow: none;
   border: 0;
   transition: none;
+}
+
+body.minimo-active .modal-container,
+body.minimo-active .prompt {
+  z-index: 1001;
 }
 
 body.minimo-active .minimo-active-leaf .workspace-leaf-content,
