@@ -10,7 +10,7 @@ The name comes from *il minimo indispensabile*, an Italian phrase for the least 
 
 ## Use
 
-1. Open a Markdown note in Live Preview on desktop Obsidian.
+1. Open a Markdown note in Live Preview in Obsidian.
 2. Run **Minimo: Toggle writing view** from the command palette.
 3. To add a shortcut, go to **Settings → Community plugins → Minimo → More options → Hotkeys**. This opens Hotkeys filtered to Minimo. None is assigned by default.
 4. Run the command again to leave. Escape also works when the editor is active; menus and suggestions keep their usual Escape behavior.
@@ -43,7 +43,7 @@ Found a bug? Use the [GitHub issue tracker](https://github.com/woodoffice/obsidi
 
 ## Development
 
-Minimo supports Obsidian 1.15.0 or newer on desktop.
+Minimo supports Obsidian 1.15.0 or newer on desktop and mobile.
 
 ```sh
 npm install
