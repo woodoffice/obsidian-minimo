@@ -10,7 +10,7 @@ body.minimo-active .minimo-active-leaf {
   --max-width: 100%;
   position: fixed;
   inset: 0;
-  z-index: 1000;
+  z-index: calc(var(--layer-popover, 30) - 1);
   width: 100vw;
   height: 100vh;
   background: var(--minimo-background);

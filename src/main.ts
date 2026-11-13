@@ -249,8 +249,8 @@ export default class MinimoPlugin extends Plugin {
       body.classList.add('minimo-active');
       this.applyStyle();
       view.plugin(this.editorExtension)?.refresh();
-      view.dom.addEventListener('keydown', keydown, true);
-      if (hadFocus) view.focus();
+      body.ownerDocument.addEventListener('keydown', keydown, true);
+      view.focus();
     } catch {
       if (!session.editorAttached) this.compartments.delete(view);
       this.exit(false);
@@ -261,7 +261,6 @@ export default class MinimoPlugin extends Plugin {
   private safeToExit(event: KeyboardEvent, view: EditorView): boolean {
     if (!this.isActiveEditor(view) || event.isComposing || event.defaultPrevented) return false;
     const doc = view.dom.ownerDocument;
-    if (!view.dom.contains(doc.activeElement)) return false;
     return !Array.from(doc.querySelectorAll<HTMLElement>('.modal-container, .menu, .suggestion-container, .prompt, .popover'))
       .some((element) => element.getClientRects().length > 0 && getComputedStyle(element).visibility !== 'hidden');
   }
@@ -273,7 +272,7 @@ export default class MinimoPlugin extends Plugin {
     session.body.classList.remove('minimo-active');
     session.leafElement.classList.remove('minimo-active-leaf');
     session.leafElement.classList.remove('minimo-show-title');
-    session.view.dom.removeEventListener('keydown', session.keydown, true);
+    session.body.ownerDocument.removeEventListener('keydown', session.keydown, true);
     try {
       if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });
     } finally {
