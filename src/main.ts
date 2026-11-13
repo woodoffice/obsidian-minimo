@@ -175,7 +175,6 @@ interface MinimoSession {
   compartment: Compartment;
   editorAttached: boolean;
   body: HTMLElement;
-  exitButton: HTMLButtonElement | null;
   scrollTop: number;
   hadFocus: boolean;
   keydown: (event: KeyboardEvent) => void;
@@ -241,7 +240,7 @@ export default class MinimoPlugin extends Plugin {
         this.exit(true);
       }
     };
-    const session: MinimoSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, exitButton: null, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
+    const session: MinimoSession = { leaf, filePath, leafElement, view, compartment, editorAttached: false, body, scrollTop: view.scrollDOM.scrollTop, hadFocus, keydown };
     this.session = session;
     try {
       view.dispatch({ effects: firstUse
@@ -253,13 +252,6 @@ export default class MinimoPlugin extends Plugin {
       body.classList.add('minimo-active');
       if (Platform.isMobile) {
         body.classList.add('minimo-mobile');
-        const exitButton = leafElement.createEl('button');
-        exitButton.type = 'button';
-        exitButton.className = 'minimo-exit';
-        exitButton.setAttribute('aria-label', 'Leave writing view');
-        exitButton.textContent = '×';
-        exitButton.addEventListener('click', () => this.exit(true));
-        session.exitButton = exitButton;
       }
       this.applyStyle();
       view.plugin(this.editorExtension)?.refresh();
@@ -287,7 +279,6 @@ export default class MinimoPlugin extends Plugin {
     session.body.classList.remove('minimo-mobile');
     session.leafElement.classList.remove('minimo-active-leaf');
     session.leafElement.classList.remove('minimo-show-title');
-    session.exitButton?.remove();
     session.body.ownerDocument.removeEventListener('keydown', session.keydown, true);
     try {
       if (session.editorAttached && session.view.dom.isConnected) session.view.dispatch({ effects: session.compartment.reconfigure([]) });

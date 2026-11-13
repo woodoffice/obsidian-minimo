@@ -34,29 +34,6 @@ body.minimo-active.minimo-mobile .mobile-toolbar-floating-options {
   display: none !important;
 }
 
-body.minimo-active.minimo-mobile .minimo-exit {
-  position: fixed;
-  z-index: 21;
-  top: max(8px, env(safe-area-inset-top));
-  right: max(8px, env(safe-area-inset-right));
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border: 1px solid var(--minimo-text-color);
-  border-radius: 50%;
-  background: var(--minimo-background);
-  color: var(--minimo-text-color);
-  font-size: 28px;
-  line-height: 1;
-  opacity: 0.55;
-}
-
-body.minimo-active.minimo-mobile .minimo-exit:focus-visible {
-  outline: 2px solid var(--minimo-caret-color);
-  outline-offset: 2px;
-  opacity: 1;
-}
-
 body.minimo-active .minimo-active-leaf .workspace-leaf-content,
 body.minimo-active .minimo-active-leaf .view-content,
 body.minimo-active .minimo-active-leaf .markdown-source-view,
