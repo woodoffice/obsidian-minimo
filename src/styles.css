@@ -29,6 +29,11 @@ body.minimo-active.minimo-mobile .minimo-active-leaf {
   height: 100dvh;
 }
 
+body.minimo-active.minimo-mobile .mobile-toolbar,
+body.minimo-active.minimo-mobile .mobile-toolbar-floating-options {
+  display: none !important;
+}
+
 body.minimo-active.minimo-mobile .minimo-exit {
   position: fixed;
   z-index: 21;
