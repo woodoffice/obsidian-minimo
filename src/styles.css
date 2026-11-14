@@ -31,7 +31,7 @@ body.minimo-active.minimo-mobile .minimo-active-leaf {
 
 body.minimo-active.minimo-mobile .mobile-toolbar,
 body.minimo-active.minimo-mobile .mobile-toolbar-floating-options {
-  display: none !important;
+  display: none;
 }
 
 body.minimo-active .minimo-active-leaf .workspace-leaf-content,
